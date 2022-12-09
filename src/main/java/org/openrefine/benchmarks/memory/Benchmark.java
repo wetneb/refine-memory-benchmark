@@ -72,19 +72,23 @@ public class Benchmark
     }
     
     protected static void inspectGrid(String name, GridState grid) throws IOException {
-        List<IndexedRow> rows = grid.collectRows();
+        long rowCount = grid.rowCount();
         long columns = grid.getColumnModel().getColumns().size();
         long reconColumns = grid.getColumnModel().getColumns().stream().filter(c -> c.getReconStats() != null).count();
-        logger.info("Rows: " + rows.size());
-        if (rows.size() > 500000) {
+        logger.info("Rows: " + rowCount);
+        if (rowCount > 500000) {
             logger.warn("temporarily skipping this one");
             return;
         }
         logger.info("Columns: " + columns);
         logger.info("Recon columns: " + reconColumns);
-        long size = sizeOf.deepSizeOf(rows);
-        logger.info("Deep size: " + size);
-        writeLine(name, size, rows.size(), columns, reconColumns);
+        for (int i = 1; i < 11; i++) {
+            long subsetSize = i*(rowCount / 10);
+            List<IndexedRow> subset = grid.getRowsAfter(0, (int) subsetSize);
+            long size = sizeOf.deepSizeOf(subset);
+            logger.info("Deep size: " + size);
+            writeLine(name, size, subsetSize, columns, reconColumns);
+        }
     }
     
     protected static void writeLine(Object... args) throws IOException {
