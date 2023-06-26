@@ -7,16 +7,21 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.ehcache.sizeof.SizeOf;
 import org.openrefine.ProjectManager;
 import org.openrefine.ProjectMetadata;
+import org.openrefine.browsing.Engine.Mode;
+import org.openrefine.browsing.Engine;
+import org.openrefine.browsing.EngineConfig;
+import org.openrefine.browsing.columns.ColumnStats;
 import org.openrefine.io.FileProjectManager;
-import org.openrefine.model.DatamodelRunner;
-import org.openrefine.model.GridState;
+import org.openrefine.model.Runner;
+import org.openrefine.model.Grid;
 import org.openrefine.model.IndexedRow;
-import org.openrefine.model.LocalDatamodelRunner;
+import org.openrefine.runners.local.LocalRunner;
 import org.openrefine.model.Project;
 import org.openrefine.model.RunnerConfiguration;
 import org.openrefine.model.RunnerConfigurationImpl;
@@ -40,7 +45,7 @@ public class Benchmark
         logger.info("Initializing OpenRefine");
         WorkflowElements.register();
         File workspace = new File("workspace");
-        DatamodelRunner runner = new LocalDatamodelRunner(conf);
+        Runner runner = new LocalRunner(conf);
         FileProjectManager.initialize(runner, workspace);
         logger.info("Done initializing OpenRefine");
         
@@ -58,9 +63,9 @@ public class Benchmark
                 logger.info("Benchmarking memory usage on project " + projectId +": " + metadata.getName());
                 Project project = projectManager.getProject(projectId);
                 
-                inspectGrid(metadata.getName(), project.getHistory().getInitialGridState());
+                inspectGrid(metadata.getName(), project.getHistory().getInitialGrid());
                 if (project.getHistory().getPosition() != 0) {
-                    inspectGrid(metadata.getName(), project.getHistory().getCurrentGridState());
+                    inspectGrid(metadata.getName(), project.getHistory().getCurrentGrid());
                 }
                 
                 logger.info("Unloading project");
@@ -71,12 +76,15 @@ public class Benchmark
         }
     }
     
-    protected static void inspectGrid(String name, GridState grid) throws IOException {
-        long rowCount = grid.rowCount();
+    protected static void inspectGrid(String name, Grid grid) throws IOException {
+        List<IndexedRow> rows = grid.collectRows();
         long columns = grid.getColumnModel().getColumns().size();
-        long reconColumns = grid.getColumnModel().getColumns().stream().filter(c -> c.getReconStats() != null).count();
-        logger.info("Rows: " + rowCount);
-        if (rowCount > 500000) {
+        EngineConfig engineConfig = new EngineConfig(Collections.emptyList(), Mode.RowBased, 500L);
+        Engine engine = new Engine(grid, engineConfig, 0L);
+        List<ColumnStats> columnStats = engine.getColumnStats();
+        long reconColumns = columnStats.stream().filter(c -> c.getReconciled() > 0).count();
+        logger.info("Rows: " + rows.size());
+        if (rows.size() > 500000) {
             logger.warn("temporarily skipping this one");
             return;
         }
