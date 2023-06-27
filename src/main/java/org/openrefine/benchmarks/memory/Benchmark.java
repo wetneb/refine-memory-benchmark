@@ -58,9 +58,8 @@ public class Benchmark
         
         try (OutputStream outputStream = new FileOutputStream(outputTsv)) {
             writer = new OutputStreamWriter(outputStream);
-            writeLine("name", "size", "rows", "columns", "reconColumns");
+            writeLine("name", "size", "rows", "columns", "reconColumns", "reconCells");
             
-        
             ProjectManager projectManager = FileProjectManager.singleton;
             for (long projectId : projectManager.getAllProjectMetadata().keySet()) {
                 ProjectMetadata metadata = projectManager.getAllProjectMetadata().get(projectId);
@@ -113,10 +112,11 @@ public class Benchmark
         grid.cache();
         Validate.isTrue(grid.isCached(), "we failed to cache this grid");
         System.gc();
-        long withCachedGrid = Runtime.getRuntime().totalMemory();
+        Runtime runtime = Runtime.getRuntime();
+        long withCachedGrid = runtime.totalMemory() - runtime.freeMemory();
         grid.uncache();
         System.gc();
-        long withoutCachedGrid = Runtime.getRuntime().totalMemory();
+        long withoutCachedGrid = runtime.totalMemory() - runtime.freeMemory();
         return withCachedGrid - withoutCachedGrid;
     }
     

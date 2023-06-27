@@ -1,8 +1,8 @@
-name	size	rows	columns	reconColumns
-ror and grid ids	509607936	104870	4	1	104500
-abb910 csv	0	64	4	0	0
-ificom 2022 xlsx	0	210	7	0	0
-inventaire immobilier de letat csv	1608515584	207104	13	1	205344
-fr en ips lycees csv	83886080	21777	15	0	0
-leistungszahlen csv	0	16	4	0	0
-EU transparency register to WD	209715200	13060	54	3	20436
+name	size	rows	columns	reconColumns	reconCells
+ror and grid ids	149504832	104870	4	1	104500
+abb910 csv	4096	64	4	0	0
+ificom 2022 xlsx	122096	210	7	0	0
+inventaire immobilier de letat csv	482260640	207104	13	1	205344
+fr en ips lycees csv	26425568	21777	15	0	0
+leistungszahlen csv	7064	16	4	0	0
+EU transparency register to WD	62602648	13060	54	3	20436
