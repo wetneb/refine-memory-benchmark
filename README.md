@@ -7,7 +7,7 @@ It consists in two parts:
 
 ## Current results
 
-The size in bytes of a grid can be predicted as: `(85 * columnsNotReconciled + 343 * columnsReconciled) * rows`.
+The size in bytes of a grid can be predicted as: `(85 * columnsNotReconciled + 343 * columnsReconciled + 980) * rows`.
 
 This could be refined by taking more samples, computing the sparsity of the grid (which could then be estimated on a sample of rows), or other features.
 
